@@ -44,7 +44,12 @@ def screenRenderer(timeNow: datetime, weather, location: str):
     for i in range(5):
       print('%s %-8s %-8s %-5s %-8s %-8s' % (widthFiller, hour1[i], hour2[i], getSymbol('numbers.txt', ':')[i], min1[i], min2[i]))
     print('%s  %s' % (widthFiller, str(timeNow.date())))
-    print('%s  Weather in %s: %s' % (widthFiller, location, str(weather)))
+    print('')
+    print('%s  Weather in %s:' % (widthFiller, location))
+    for daily in weather.daily_forecasts:
+      for hourly in daily.hourly_forecasts:
+        print('%s        %s   %sC' % (widthFiller, str(hourly.time), str(hourly.temperature)))
+  
 
     for i in range((height - 8)):
       print('')
@@ -77,29 +82,23 @@ def getSymbol(fileName, symbol):
     font.close()
     return bigSym
 
-'''
-async def getWeather(location):
-  async with python_weather.Client(unit=python_weather.METRIC) as client:
-    weather = await client.get(location)
-  return weather.temperature
-'''
 
-def main():
+async def main():
     location = 'Helsinki'
 
     runnig = True
 
-    #asyncio.run(getWeather(location))
-
-    #weather = getWeather(location)
-    weather = 'something'
+    async with python_weather.Client(unit=python_weather.METRIC) as client:
+      weather = await client.get(location)
 
     checkTime = time.time()
     while runnig:
       screenRenderer(datetime.now(), weather, location)
       if time.time() > 1200 + checkTime:            #only run this every 20min
-        weather = getWeather(location)
+        async with python_weather.Client(unit=python_weather.METRIC) as client:
+          weather = await client.get(location)
       time.sleep(20)
     return None
 
-main()
+if __name__ == "__main__":
+  asyncio.run(main())
