@@ -27,6 +27,10 @@ def screenRenderer(timeNow: datetime, weather, location: str):
       print(timeNow.date(), timeNow.time())
       print('Can not properly display information due to small terminal!')
       return None
+    if weather == None:
+      print(timeNow.date(), timeNow.time())
+      print('Can not reach weather services!')
+      return None
 
     tStr = timeSymbols(timeNow)
 
@@ -45,17 +49,29 @@ def screenRenderer(timeNow: datetime, weather, location: str):
       print('%s %-8s %-8s %-5s %-8s %-8s' % (widthFiller, hour1[i], hour2[i], getSymbol('numbers.txt', ':')[i], min1[i], min2[i]))
     print('%s  %s' % (widthFiller, str(timeNow.date())))
     print('')
-    print('%s  Weather in %s:' % (widthFiller, location))
-    for daily in weather.daily_forecasts:
-      for hourly in daily.hourly_forecasts:
-        print('%s        %s   %sC' % (widthFiller, str(hourly.time), str(hourly.temperature)))
-  
 
-    for i in range((height - 8)):
+    todayWeather = ''
+    weatherLines = 0
+
+    for daily in weather:
+      if daily.date == timeNow.date():
+        for hourly in daily.hourly_forecasts:
+          if hourly.time.hour > timeNow.hour:
+            todayWeather = todayWeather + '  ' + str(hourly.time)[0:2] + ': ' + str(hourly.temperature) + 'C '
+        print('%s  Weather in %s today:' % (widthFiller, location))
+        print('%s%s\n' % (widthFiller, todayWeather))
+        weatherLines += 2
+      else:
+        print(widthFiller + '  ' + str(daily.date) + ' ' + str(daily.lowest_temperature) + 'C / ' + str(daily.highest_temperature) + 'C')
+        weatherLines += 1
+        
+  
+    for i in range((height - 8 - weatherLines)):
       print('')
     
     print(str(widthArr))
     return None
+    #end screen construction
 
 
 def timeSymbols(timeNow: datetime):
@@ -88,16 +104,25 @@ async def main():
 
     runnig = True
 
-    async with python_weather.Client(unit=python_weather.METRIC) as client:
-      weather = await client.get(location)
-
+    dailyWeather = None
     checkTime = time.time()
+    lastTime = 0
     while runnig:
-      screenRenderer(datetime.now(), weather, location)
-      if time.time() > 1200 + checkTime:            #only run this every 20min
-        async with python_weather.Client(unit=python_weather.METRIC) as client:
-          weather = await client.get(location)
-      time.sleep(20)
+      if time.time() > 1200 + checkTime or dailyWeather == None:            #only run this every 20min
+        try:
+          async with python_weather.Client(unit=python_weather.METRIC) as client:
+            weather = await client.get(location)
+            dailyWeather = []
+            for daily in weather.daily_forecasts:
+              dailyWeather = dailyWeather + [daily]
+        except:
+          dailyWeather = None
+
+      if time.time() - lastTime >= 60:
+        screenRenderer(datetime.now(), dailyWeather, location)
+        lastTime = time.time()
+      time.sleep(1)
+
     return None
 
 if __name__ == "__main__":
