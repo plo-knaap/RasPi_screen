@@ -52,17 +52,35 @@ def screenRenderer(timeNow: datetime, weather, location: str):
 
     todayWeather = ''
     weatherLines = 0
+    prev = ''
 
     for daily in weather:
       if daily.date == timeNow.date():
-        for hourly in daily.hourly_forecasts:
-          if hourly.time.hour > timeNow.hour:
-            todayWeather = todayWeather + '  ' + str(hourly.time)[0:2] + ': ' + str(hourly.temperature) + 'C '
         print('%s  Weather in %s today:' % (widthFiller, location))
-        print('%s%s\n' % (widthFiller, todayWeather))
-        weatherLines += 2
+        #print('%s  The now line' % (widthFiller))
+        #print(daily.hourly_forecasts )
+        for hourly in daily.hourly_forecasts:
+          if prev == '':
+            prev = hourly
+          
+          if prev.time.hour <= timeNow.hour <= hourly.time.hour:
+            if timeNow.hour - prev.time.hour < hourly.time.hour - timeNow.hour:
+              forecastNow = prev
+            else:
+              forecastNow = hourly
+
+            print('%s%5s C%7s mm   %s\n' % (widthFiller, forecastNow.temperature, forecastNow.precipitation, forecastNow.kind))
+          if hourly.time.hour > timeNow.hour:
+            todayWeather = '%5s:00%5s C' % (str(hourly.time)[0:2], str(hourly.temperature))
+            print('%s%s' % (widthFiller, todayWeather))
+            weatherLines += 1
+          prev = hourly
+
+        weatherLines += 5
+        print('\n')
       else:
-        print(widthFiller + '  ' + str(daily.date) + ' ' + str(daily.lowest_temperature) + 'C / ' + str(daily.highest_temperature) + 'C')
+        weatherLine = '%12s%5s C /%3s C' % (str(daily.date), str(daily.lowest_temperature), str(daily.highest_temperature))
+        print(widthFiller + weatherLine)
         weatherLines += 1
         
   
