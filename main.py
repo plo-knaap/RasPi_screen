@@ -57,13 +57,11 @@ def screenRenderer(timeNow: datetime, weather, location: str):
     for daily in weather:
       if daily.date == timeNow.date():
         print('%s  Weather in %s today:' % (widthFiller, location))
-        #print('%s  The now line' % (widthFiller))
-        #print(daily.hourly_forecasts )
         for hourly in daily.hourly_forecasts:
           if prev == '':
             prev = hourly
           
-          if prev.time.hour <= timeNow.hour <= hourly.time.hour:
+          if prev.time.hour <= timeNow.hour < hourly.time.hour:
             if timeNow.hour - prev.time.hour < hourly.time.hour - timeNow.hour:
               forecastNow = prev
             else:
@@ -79,7 +77,7 @@ def screenRenderer(timeNow: datetime, weather, location: str):
         weatherLines += 5
         print('\n')
       else:
-        weatherLine = '%12s%5s C /%3s C' % (str(daily.date), str(daily.lowest_temperature), str(daily.highest_temperature))
+        weatherLine = '%12s%5s /%3s C   %s' % (str(daily.date), str(daily.lowest_temperature), str(daily.highest_temperature), daily.hourly_forecasts[4].kind)
         print(widthFiller + weatherLine)
         weatherLines += 1
         
