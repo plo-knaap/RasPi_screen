@@ -43,10 +43,6 @@ def screenRenderer(timeNow: datetime, weather, location: str):
       print(timeNow.date(), timeNow.time())
       print('Can not properly display information due to small terminal!')
       return None
-    if weather == None:
-      print(timeNow.date(), timeNow.time())
-      print('Can not reach weather services!')
-      return None
 
     tStr = timeSymbols(timeNow)
 
@@ -69,6 +65,15 @@ def screenRenderer(timeNow: datetime, weather, location: str):
     todayWeather = ''
     weatherLines = 0
     prev = ''
+
+    if weather == None:
+      print(widthFiller + '  could not reach weather services!')
+
+      for i in range((height - 8 - 1)):
+        print('')
+    
+      print(str(widthArr))
+      return None
 
     for daily in weather:
       if daily.date == timeNow.date():
