@@ -8,6 +8,12 @@ import python_weather
 
 
 def screenRenderer(timeNow: datetime, weather, location: str):
+
+    weekDays = ("Monday", "Tuesday", 
+                   "Wednesday", "Thursday",
+                   "Friday", "Saturday",
+                   "Sunday")
+
     width = os.get_terminal_size().columns
     height = os.get_terminal_size().lines - 3
 
@@ -47,7 +53,7 @@ def screenRenderer(timeNow: datetime, weather, location: str):
 
     for i in range(5):
       print('%s %-8s %-8s %-5s %-8s %-8s' % (widthFiller, hour1[i], hour2[i], getSymbol('numbers.txt', ':')[i], min1[i], min2[i]))
-    print('%s  %s' % (widthFiller, str(timeNow.date())))
+    print('%s  %s  %s' % (widthFiller, weekDays[timeNow.weekday()], str(timeNow.date())))
     print('')
 
     todayWeather = ''
@@ -61,13 +67,14 @@ def screenRenderer(timeNow: datetime, weather, location: str):
           if prev == '':
             prev = hourly
           
-          if prev.time.hour <= timeNow.hour < hourly.time.hour:
-            if timeNow.hour - prev.time.hour < hourly.time.hour - timeNow.hour:
+          if prev.time <= timeNow.time() <= hourly.time:
+            if timeNow.time() - prev.time < hourly.time - timeNow.time():
               forecastNow = prev
             else:
               forecastNow = hourly
 
             print('%s%5s C%7s mm   %s\n' % (widthFiller, forecastNow.temperature, forecastNow.precipitation, forecastNow.kind))
+          
           if hourly.time.hour > timeNow.hour:
             todayWeather = '%5s:00%5s C' % (str(hourly.time)[0:2], str(hourly.temperature))
             print('%s%s' % (widthFiller, todayWeather))
