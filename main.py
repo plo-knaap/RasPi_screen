@@ -83,7 +83,7 @@ def screenRenderer(timeNow: datetime, weather, location: str):
             prev = hourly
           
           if prev.time <= timeNow.time() <= hourly.time:
-            if timeNow.time() - prev.time < hourly.time - timeNow.time():
+            if timeNow.hour - prev.time.hour < hourly.time.hour - timeNow.hour:
               forecastNow = prev
             else:
               forecastNow = hourly
@@ -151,13 +151,13 @@ async def main():
       if time.time() > 1200 + checkTime or dailyWeather == None:            #only run this every 20min
         try:
           if units == 'metric':
-            async with python_weather.Client(unit=python_weather.metric) as client:
+            async with python_weather.Client(unit=python_weather.METRIC) as client:
               weather = await client.get(location)
               dailyWeather = []
               for daily in weather.daily_forecasts:
                 dailyWeather = dailyWeather + [daily]
           elif units == 'imperial':
-            async with python_weather.Client(unit=python_weather.imperial) as client:
+            async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
               weather = await client.get(location)
               dailyWeather = []
               for daily in weather.daily_forecasts:
