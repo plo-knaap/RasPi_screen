@@ -5,6 +5,16 @@ from datetime import datetime
 import time
 import asyncio
 import python_weather
+import xml.etree.ElementTree as et
+
+
+def getConfig(conf_path: str):
+    tree = et.parse(conf_path)
+    root = tree.getroot()
+    units = root.find('units')
+    location = root.find('location')
+    screen_update = root.find('screen_update')
+    return [units.text, location.text, int(screen_update.text)]
 
 
 def screenRenderer(timeNow: datetime, weather, location: str):
@@ -123,7 +133,9 @@ def getSymbol(fileName, symbol):
 
 
 async def main():
-    location = 'Helsinki'
+    conf_path = 'config.xml'
+
+    [units, location, screen_update] = getConfig(conf_path)
 
     runnig = True
 
@@ -133,15 +145,22 @@ async def main():
     while runnig:
       if time.time() > 1200 + checkTime or dailyWeather == None:            #only run this every 20min
         try:
-          async with python_weather.Client(unit=python_weather.METRIC) as client:
-            weather = await client.get(location)
-            dailyWeather = []
-            for daily in weather.daily_forecasts:
-              dailyWeather = dailyWeather + [daily]
+          if units == 'metric':
+            async with python_weather.Client(unit=python_weather.metric) as client:
+              weather = await client.get(location)
+              dailyWeather = []
+              for daily in weather.daily_forecasts:
+                dailyWeather = dailyWeather + [daily]
+          elif units == 'imperial':
+            async with python_weather.Client(unit=python_weather.imperial) as client:
+              weather = await client.get(location)
+              dailyWeather = []
+              for daily in weather.daily_forecasts:
+                dailyWeather = dailyWeather + [daily]
         except:
           dailyWeather = None
 
-      if time.time() - lastTime >= 60:
+      if time.time() - lastTime >= screen_update:
         screenRenderer(datetime.now(), dailyWeather, location)
         lastTime = time.time()
       time.sleep(1)
