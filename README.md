@@ -8,11 +8,11 @@ Uses simply the terminal view, nothing fancy.
 
 Requires python-weather package and an config.xml file in the program directory with the following format:
 
-'''xml
+```xml
 <?xml version="1.0"?>
 <conf>
     <units>metric</units>
     <location>Helsinki</location>
     <screen_update>59</screen_update>
 </conf>
-'''
+```
