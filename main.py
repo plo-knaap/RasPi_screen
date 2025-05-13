@@ -51,8 +51,6 @@ def screenRenderer(timeNow: dt.datetime, weather, location: str):
     min1 = getSymbol('numbers.txt', tStr[2])
     min2 = getSymbol('numbers.txt', tStr[3])
 
-    #symLines = [getSymbol('numbers.txt', '0')[0], getSymbol('numbers.txt', '0')[1], getSymbol('numbers.txt', '0')[2], getSymbol('numbers.txt', '0')[3], getSymbol('numbers.txt', '0')[4]]
-
     #screen construction:
     print(str(widthArr))
     print('')
@@ -90,15 +88,16 @@ def screenRenderer(timeNow: dt.datetime, weather, location: str):
 
             print('%s%5s C%7s mm   %s\n' % (widthFiller, forecastNow.temperature, forecastNow.precipitation, forecastNow.kind))
           
-          if hourly.time.hour > timeNow.hour:
+          if hourly.time.hour > timeNow.hour and height > 20:
             todayWeather = '%5s:00%5s C' % (str(hourly.time)[0:2], str(hourly.temperature))
             print('%s%s' % (widthFiller, todayWeather))
             weatherLines += 1
+
           prev = hourly
 
         weatherLines += 5
         print('\n')
-      else:
+      elif height > 20:
         weatherLine = '%12s%5s /%3s C   %s' % (str(daily.date), str(daily.lowest_temperature), str(daily.highest_temperature), daily.hourly_forecasts[4].kind)
         print(widthFiller + weatherLine)
         weatherLines += 1
