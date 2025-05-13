@@ -1,7 +1,7 @@
 #RaspberryPi screen with weather etch information visible, by Alpo van der Knaap. Started in 2024.
 
 import os
-from datetime import datetime
+import datetime as dt
 import time
 import asyncio
 import python_weather
@@ -17,7 +17,7 @@ def getConfig(conf_path: str):
     return [units.text, location.text, int(screen_update.text)]
 
 
-def screenRenderer(timeNow: datetime, weather, location: str):
+def screenRenderer(timeNow: dt.datetime, weather, location: str):
 
     weekDays = ("Monday", "Tuesday", 
                    "Wednesday", "Thursday",
@@ -112,7 +112,7 @@ def screenRenderer(timeNow: datetime, weather, location: str):
     #end screen construction
 
 
-def timeSymbols(timeNow: datetime):
+def timeSymbols(timeNow: dt.datetime):
     hours = str(timeNow.hour)
     minutes = str(timeNow.minute)
     if len(hours) == 1:
@@ -166,7 +166,7 @@ async def main():
           dailyWeather = None
 
       if time.time() - lastTime >= screen_update:
-        screenRenderer(datetime.now(), dailyWeather, location)
+        screenRenderer(dt.datetime.now(), dailyWeather, location)
         lastTime = time.time()
       time.sleep(1)
 
